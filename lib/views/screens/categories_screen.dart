@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:tessa_multi_web_admin/views/screens/widgets/category_widget.dart';
 
 class CategoryScreen extends StatefulWidget {
   static const String routeName = '\CategoriesScreen';
@@ -46,12 +48,19 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   uploadCategory() async {
+    EasyLoading.show();
     if (_formKey.currentState!.validate()) {
       String imageUrl = await _uploadCategoryBannerToStorage(_image);
 
       await _firestore.collection('categories').doc(fileName).set({
         'image': imageUrl,
         'categoryName': categoryName,
+      }).whenComplete(() {
+        EasyLoading.dismiss();
+        setState(() {
+          _image = null;
+          _formKey.currentState!.reset();
+        });
       });
     } else {
       print('O Bad Guy');
@@ -149,6 +158,23 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 ),
               ],
             ),
+            Divider(
+              color: Colors.grey,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Categories',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            CategoryWidget(),
           ],
         ),
       ),
